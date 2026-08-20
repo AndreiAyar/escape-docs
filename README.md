@@ -18,6 +18,8 @@ The original **Night Garage** is still available from the starting screen as a s
 
 ## Talking with Sparky
 
+Sparky uses the Python [OpenRouter Agent SDK](https://openrouter.ai/docs/agent-sdk/overview) to run a **bounded agentic tool loop**. The model can choose `get_ride_status`, `search_honda_manual`, both tools, or a direct reply. Python executes the requested tools and sends their results back so the model can decide what to do next, with a four-step limit and a response timeout.
+
 Sparky can read the dashboard, the findings you've collected, and the actions you can currently take. That lets him respond to your actual situation rather than give the same advice every time. He can suggest a button to press, but the decision stays with you and the game checks the move before applying it.
 
 When you ask about something in the Honda manual, he can look it up and include a source in his reply. Clicking the citation opens the passage, with a link to its page in the original PDF.
@@ -42,7 +44,7 @@ The browser displays the ride, Fastify runs the game rules, and Python connects 
 flowchart TD
     Player["Player"] --> Web["Next.js + React<br/>Cockpit, controls and radio"]
     Web --> API["Fastify + TypeScript<br/>Ride state and game rules"]
-    API --> AI["FastAPI + Python<br/>Sparky's tools and manual search"]
+    API --> AI["FastAPI + Python<br/>Sparky's agent loop and tools"]
     AI --> PG[("PostgreSQL + pgvector<br/>Manual passages and embeddings")]
     AI --> OpenRouter["OpenRouter<br/>Model replies and embeddings"]
     API -->|"Publish accepted ride events"| NATS[("NATS JetStream<br/>Persistent ride history")]
@@ -56,7 +58,8 @@ Each ride has its own event subject in JetStream. Fastify and Python use separat
 | --- | --- |
 | **Next.js / React** | Instruments, sound, player controls, conversation, and manual citations. |
 | **Fastify / TypeScript** | Active rides, allowed actions, inspection results, and outcomes. |
-| **FastAPI / Python / Pydantic** | Validated AI inputs, tool calls, retrieval, and ride explanations. |
+| **FastAPI / Python / Pydantic** | Validated AI inputs, the agent loop, read-only tools, retrieval, and ride explanations. |
+| **OpenRouter** | Access to language and embedding models; its Python Agent SDK manages the bounded tool loop. |
 | **PostgreSQL + pgvector** | Manual passages searched by meaning, with their source pages. |
 | **NATS JetStream** | Recorded decisions for replay and debrief. |
 
@@ -64,7 +67,7 @@ For a player action, Fastify checks the current stage, calculates the next state
 
 ## Remembering the ride
 
-The black box turns a lost ride into a timeline of decisions and findings. Sparky's **debrief** is a review of that game session: it traces the player's recorded actions to explain what went wrong and what to do differently next time. For example, if you found a coolant leak but resumed riding, the debrief links that decision to the engine overheating and stalling. The explanation comes from the recorded actions and inspection findings; the model can help choose a coaching tip.
+The black box turns a lost ride into a timeline of decisions and findings. Sparky's **debrief** is a review of that game session: it traces the player's recorded actions to explain what went wrong and what to do differently next time. For example, if you found a coolant leak but resumed riding, the debrief links that decision to the engine overheating and stalling. The debrief uses rules to build the explanation from the recorded actions and inspection findings; an optional model call can choose a coaching tip.
 
 <details>
 <summary>Watch a black box replay</summary>
