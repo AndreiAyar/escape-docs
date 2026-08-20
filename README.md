@@ -36,7 +36,7 @@ The fictional codes in the Night Garage use a separate Markdown game manual.
 
 ## How it fits together
 
-The browser displays the ride, Fastify runs the game rules, and Python connects Sparky to the ride facts and manual. NATS keeps a recording that both the game and the mechanic can read later.
+The browser displays the ride, Fastify runs the game rules, and Python connects Sparky to the ride facts and manual. NATS JetStream persists the ride events so Fastify can replay them in the black box and Python can independently read them for Sparky's debrief.
 
 ```mermaid
 flowchart TD
@@ -45,9 +45,12 @@ flowchart TD
     API --> AI["FastAPI + Python<br/>Sparky's tools and manual search"]
     AI --> PG[("PostgreSQL + pgvector<br/>Manual passages and embeddings")]
     AI --> OpenRouter["OpenRouter<br/>Model replies and embeddings"]
-    API --> NATS[("NATS JetStream<br/>Ride recording")]
-    AI --> NATS
+    API -->|"Publish accepted ride events"| NATS[("NATS JetStream<br/>Persistent ride history")]
+    NATS -->|"Replay events for the black box"| API
+    NATS -->|"Read events for the debrief"| AI
 ```
+
+Each ride has its own event subject in JetStream. Fastify and Python use separate consumers that read its history from the beginning without removing the recording. This gives the replay and debrief the same sequence of decisions and inspection findings, even after the finished ride is removed from API memory.
 
 | Component | What it handles |
 | --- | --- |
