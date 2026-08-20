@@ -64,7 +64,7 @@ For a player action, Fastify checks the current stage, calculates the next state
 
 ## Remembering the ride
 
-The black box turns a lost ride into a timeline of decisions and findings. Sparky reads that same recording to explain what happened and suggest something to try next time. The recorded actions determine the outcome; the model can help choose a coaching tip.
+The black box turns a lost ride into a timeline of decisions and findings. Sparky's **debrief** is a review of that game session: it traces the player's recorded actions to explain what went wrong and what to do differently next time. For example, if you found a coolant leak but resumed riding, the debrief links that decision to the engine overheating and stalling. The explanation comes from the recorded actions and inspection findings; the model can help choose a coaching tip.
 
 <details>
 <summary>Watch a black box replay</summary>
