@@ -1,5 +1,7 @@
 # Escape
 
+**[Play Escape](https://ride.ayar.ro)**
+
 Escape is a motorcycle road-trip game about figuring out what to do when the ride doesn't go to plan. You're heading up Passo dello Stelvio on a Honda CBR600RR when the bike starts acting up, with a storm getting closer and your mechanic, Sparky, at the other end of the radio.
 
 Read the instruments, pull over to investigate, and talk it through before deciding what to do next. The game grew out of learning full-stack development and finding a useful place for Python, language models, and a searchable motorcycle manual in the same project.
